@@ -1,0 +1,74 @@
+<nav class="navbar navbar-inverse myNavBar downBrd">
+    <div class="col-xs-12 navbarIn noMoreGrow col-sm-offset-1 col-sm-10 col-md-offset-2 col-md-8 noPadding">
+      <span class="glyphicon glyphicon-menu-left navbarBackBtn"></span>
+      <div class="navbar-header">
+            <button type="button" (click)="dropFirstMenu()" class="navbar-toggle collapsed firstMenu" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="noPadding backImg iconLogo" href="#"></a>
+      </div>
+
+      <div id="navbar" class="collapse navbar-collapse" #smDropDownMenu>
+            <ul class="nav navbar-nav navMenuList">
+                <li class="profileNavLinkCont" *ngIf="activeUsr" >
+                    <a [routerLink]="['/app/perfil', activeUser.alias]" href="" class="noBrd grayColor profileNavLink">
+                        <span>@</span>
+                        <span class="aliasNavSpan"> {{activeUser.alias}} </span>
+                        <div class="backImg minProfileImg"></div>
+                    </a>
+
+                </li>
+                <li class="active"><a href="#appStoreFooter">Descargar app </a></li>
+                <li *ngIf="!activeUsr">
+                    <a routerLink="/login">Ingresar</a>
+                </li>
+                <li *ngIf="!activeUsr">
+                    <a routerLink="/registro" class="noBrd aquaColor">Crear cuenta</a>
+                </li>
+                <li *ngIf="!activeUsr" class="hidden-sm hidden-md hidden-lg hidden-xl disabled">
+                    <a>Mi garage</a>
+                </li>
+                <li class="hidden-sm hidden-md hidden-lg hidden-xl">
+                    <a routerLink="/app/catalogo">Catálogo</a>
+                <li class="hidden-sm hidden-md hidden-lg hidden-xl shareVrummLi hiddenItm">
+                    <button class="shareVrumm" (click)="shareModal()" >Comparte Vrumm</button>
+                </li>
+                <li class="btmBrd hidden-sm hidden-md hidden-lg hidden-xl" #configLink1>
+                    <a [routerLink]="['/app/perfil', activeUser.alias, '/edit']">Configuración</a>
+                </li>
+                <li *ngIf="activeUsr" class="hidden-sm hidden-md hidden-lg hidden-xl">
+                    <a data-dev="/vrumm/build/web/" data-prod="/web/" href="" class="aquaColor closeSession noChangeHref">Cerrar Sesión</a>
+                </li>
+
+                <!-- second menu -->
+
+                <li class="hidden-xs dropdown inside" #dropdownItem>
+                    <button (click)="dropMenu()" id="secondMenu" type="button" class="dropdown-toggle hidedMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      <span class="onColl fa fa-bars" *ngIf="!navbarDown"></span>
+                      <span class="onExp glyphicon glyphicon-remove" *ngIf="navbarDown"></span>
+                    </button>
+                    <ul class="dropdown-menu-right navSMenuList" aria-labelledby="secondMenu">
+                        <li *ngIf="!activeUsr" class="disabled">
+                            <a>Mi garage</a>
+                        </li>
+                        <li>
+                            <a routerLink="/app/catalogo">Catálogo</a>
+                        </li>
+                        <li class="shareVrummLi hiddenItm">
+                            <button (click)="shareModal()" class="shareVrumm">Comparte Vrumm</button>
+                        </li>
+                        <li class="btmBrd" #configLinkDisable>
+                            <a [routerLink]="['/app/perfil', activeUser.alias, '/edit']">Configuración</a>
+                        </li>
+                        <li *ngIf="activeUsr">
+                            <a data-dev="/vrumm/build/web/" data-prod="/web/" class="aquaColor closeSession noChangeHref">Cerrar Sesión</a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+      </div>
+    </div>
+</nav>    

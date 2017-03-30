@@ -1,1 +1,83 @@
-login place
+<div class="row-fluid noMoreGrow initialForms noPadding childHeight">
+
+
+        <div class="passModalCont">
+          <div class="recoverPassModal">
+            <span class="closeModal">X</span>
+            <div class="modalTxtContainer noMargin noPadding">
+              <h3 class="passRecTitles">¡Recupera tu contraseña!</h3>
+              <p class="recPassMdTxt">Ya se envió una liga al E-Mail que registraste para que puedas cambiar tu contraseña.</p>
+              <p class="recPassMdTxt">
+              Sigue las indicaciones detalladas en el E-mail para recuperar tu acceso a Vrumm!
+              </p>
+              <h3 class="passRecTitles">¿No has recibido una liga aún?</h3>
+              <div class="resendPart">
+                <img src="assets/img/ic_resend.png" class="resendImg">
+                <p class="recPassTxt">Reenvía la liga a tu E-Mail</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <sideimg-vrumm></sideimg-vrumm>
+        
+        <div id="r-formContainer" class="col-xs-10 col-xs-offset-1 col-sm-6 col-sm-offset-0 noPadding col-lg-4">
+          
+          <div class="row-fluid noPadding childHeight">
+            
+            <div class="col-xs-10 col-xs-offset-1 noPadding logoHeader backImg"></div>
+
+          </div>
+
+          <form class="form-signin noPadding" id="login" #loginForm="ngForm" (submit)="onSubmit(loginForm)">
+            
+            <div class="form-control myFormContr noPadding registrationTitle">
+              <h5 class="r-subtitle">
+                <span *ngIf="!forgotPassword" id="normalText">Bienvenido a vrumm, desde aquí podrás acceder al mercado mexicano de automóviles, comparando coches y compartiendo tus gustos</span>
+                <span *ngIf="forgotPassword" id="recoverPassTxt">Ingresa el e-mail con el que te registraste y te enviaremos una liga para recuperar tu contraseña</span>
+              </h5>
+
+            </div>
+
+
+            <div id="r-emailInputGrp" class="form-control myFormContr noPadding butVertHalf13" *ngIf="!forgotPassword">
+
+              <span id="l-mailLabel" class="UsuarioNombreFijo">E-mail*</span>
+              <input type="text" id="l-email" name="email" class="form-control"  required [(ngModel)]="loginUser.email" >
+            </div>
+
+
+            <div id="l-passCont" class="form-control myFormContr childHeight noPadding butVertHalf13">
+              
+                <span class="UsuarioNombreFijo">Contraseña*</span>
+                <input type="password" id="l-pass" name="passw" class="form-control" required [(ngModel)]="loginUser.passw" >
+              
+            </div>
+                   
+          
+            <div *ngIf="formSubmitError" class="errorLogin">Hay un error en el mail o la contraseña</div>
+            <div *ngIf="loginError" class="errorLogin">Tenemos problemas internos y tu login ha fallado, por favor inténtalo más tarde</div>
+            <div *ngIf="!forgotPassword" class="passRecover" (click)="forgotPasswordProcess()" >¿Olvidaste tu contraseña?</div>
+            <div class="loginBtnCont noPadding noMargin">
+              <button *ngIf="forgotPassword" (click)="forgotPasswordProcess()" type="button" class="btn btn-lg cancelarBtn NoleftM halfMR" #cancelBtn >Cancelar</button>
+              <button class="btn btn-lg btn-block registrarbtn loginBtn" type="submit">
+              		<span id="subBtnNrTxt" *ngIf="!forgotPassword">Iniciar Sesión</span>
+              		<span id="subBtnRecTxt" *ngIf="forgotPassword">Recuperar</span>
+              </button>
+            </div>
+          </form>
+
+            
+          <div class="logRedBtnCont">
+
+            <h3 class="askLog">¿Aún no tienes una cuenta?</h3>
+            <div class="l-regInv">Regístrate para navegar, buscar, compartir y comparar autos con Vrumm</div>
+            <button id="goToReg" class="btn btn-primary redirectLogBtn loginPoint" (click)="toRegister()" >Regístrate</button>
+            <div class="l-regInv scnTxt">ó</div>
+            <button id="goToCatBrand" class="btn btn-primary redirectLogBtn loginPoint" (click)="toBrands()" >Navega como invitado</button>   
+          </div>
+        </div>
+      
+      </div>
+
+      <vrumm-footer></vrumm-footer>

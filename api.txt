@@ -1,0 +1,1556 @@
+swagger: '2.0'
+info:
+  title: Vrumm API
+  description: BackEnd de la aplicación movil/Web Vrumm
+  version: "1.2.4"
+  contact:
+    name: developer@vrumm.mobi
+# the domain of the service
+host: vrummapp.net
+# array of all schemes that your API supports
+schemes:
+  - https
+# will be prefixed to all paths
+basePath: /ws/v2
+produces:
+  - application/json
+paths:
+  /acceso/getdevice:
+    post:
+      summary: Obtener/registrar dispositivo
+      description: |
+        Con este endpoint se registra el dispositivo, cuando el device existe solo se regresa el id
+      parameters:
+        - name: device
+          in: query
+          description: UUID del dispositivo
+          required: true
+          type: string
+        - name: type
+          in: query
+          description: Tipo de dispositivo (iOS o Android)
+          required: false
+          type: string
+        - name: serie
+          in: query
+          description: Serie del dispositivo (si no existe poner el mismo valor que en device)
+          required: false
+          type: string
+        - name: os
+          in: query
+          description: Version del sistema operativo
+          required: false
+          type: string
+      tags:
+        - Acceso
+      responses:
+        200:
+          description: Id asignado al dispositivo
+        default:
+          description: Problemas con la BD
+  /acceso/getendpoints:
+    post:
+      summary: Obtener estatus de endpoints
+      description: |
+        Este endpoint tiene el objetivo de obtener el estatu del resto de endpoints, principalmente del catálogo y la busqueda
+      parameters:
+        - name: endpoint
+          in: query
+          description: Nombre del endpoint
+          required: true
+          type: string
+      tags:
+        - Acceso
+      responses:
+        200:
+          description: Arreglo del endpoint
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/EndPoint'
+        default:
+          description: Problemas con la BD
+  /acceso/getsliders:
+    post:
+      summary: Obtener sliders para mostar en la interfaz de inicio
+      description: |
+        Este endpoint tiene el objetivo de mostrar los sliders que se presentarán en la interfaz inicial, cuando un slider sea visto por el dispositovo se tiene que marcar como visto (acceso/slidervisto)
+      parameters:
+        - name: device
+          in: query
+          description: Id del distpositivo
+          required: true
+          type: string
+      tags:
+        - Acceso
+      responses:
+        200:
+          description: Arreglo de Sliders
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Slider'
+        default:
+          description: Problemas con la BD
+  /acceso/slidervisto:
+    post:
+      summary: Marca un slider como visto
+      description: |
+        Cuando un slider es visto en el dispositivo, este se tiene que marcar, este es el objetivo del endpoint, se proporciona el device y id del slider, y se regresa mensaje de que fue marcado
+      parameters:
+        - name: device
+          in: query
+          description: Id del distpositivo
+          required: true
+          type: string
+        - name: slider
+          in: query
+          description: Id del slider
+          required: true
+          type: string
+      tags:
+        - Acceso
+      responses:
+        200:
+          description: Slider marcado
+        default:
+          description: Problemas con la BD
+  /catalogo/getmarcas:
+    post:
+      summary: Obtener listado de las marcas
+      description: |
+        Con este endpoint se obtienen la lista de marcas, así mismo tiene ya el orden en que se deben de mostrar, la url del logotipo/imagen y el número de modelos que contiene (esto último sirve para el versionamiento)
+      tags:
+        - Catalogo
+      responses:
+        200:
+          description: Arreglo con las Marcas
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Marca'
+        default:
+          description: Error en la consulta
+  /catalogo/getmodelos:
+    post:
+      summary: Obtener listado de modelos para el Catálogo
+      description: |
+        Con este endpoint se puede obtener los modelos de acuerdo a la marca que se haya seleccionado, el resultado esta ordenado de acuerdo al año, tipo, carroceria
+      parameters:
+        - name: brandId
+          in: query
+          description: Id de la marca
+          required: true
+          type: number
+        - name: device
+          in: query
+          description: Id del dispositivo
+          required: true
+          type: number
+        - name: user
+          in: query
+          description: Id del usuario cuando esta logueado
+          required: false
+          type: number
+      tags:
+        - Catalogo
+      responses:
+        200:
+          description: Arreglo con los Modelos por marca
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Modelo'
+        default:
+          description: false = no existe información para la marca indicada
+  /catalogo/getmodelosearch:
+    post:
+      summary: Obtener listado de modelos para la busqueda
+      description: |
+        Con este endpoint se puede obtener los modelos de acuerdo a las versiones indicadas, regresará el mismo arreglo que para catalog/getmodelos
+      parameters:
+        - name: device
+          in: query
+          description: Id del dispositivo
+          required: true
+          type: number
+        - name: user
+          in: query
+          description: Id del usuario cuando esta logueado
+          required: false
+          type: number
+        - name: versiones
+          in: query
+          description: Relación de Id's de versiones separadas por comas
+          required: true
+          type: string
+      tags:
+        - Catalogo
+      responses:
+        200:
+          description: Arreglo con las Marcas+Modelos indicados
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Modelo'
+        default:
+          description: false = no existe información para las versiones indicadas
+  /catalogo/getversiones:
+    post:
+      summary: Obtener listado de versiones
+      description: |
+        Con este endpoint se puede obtener las versiones de un modelo, cuando se proporciona el user también se proporcionará la marca de si esta en garage y comparador
+      parameters:
+        - name: device
+          in: query
+          description: Id del dispositivo
+          required: true
+          type: number
+        - name: user
+          in: query
+          description: Id del usuario cuando esta logueado
+          required: false
+          type: number
+        - name: modelId
+          in: query
+          description: Id del modelo que se quieren obtener las versiones
+          required: true
+          type: number
+      tags:
+        - Catalogo
+      responses:
+        200:
+          description: Arreglo con las versiones
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Auto'
+        default:
+          description: false = no existe la version/auto en el garage
+  /catalogo/getversionsearch:
+    post:
+      summary: Obtener listado de versiones para busqueda
+      description: |
+        Con este endpoint se puede obtener las versiones en particular, cuando se proporciona el user también se proporcionará la marca de si esta en garage y comparador
+      parameters:
+        - name: device
+          in: query
+          description: Id del dispositivo
+          required: true
+          type: number
+        - name: user
+          in: query
+          description: Id del usuario cuando esta logueado
+          required: false
+          type: number
+        - name: versiones
+          in: query
+          description: Relación de Id's de versiones separadas por comas
+          required: true
+          type: string
+        - name: pagina
+          in: query
+          description: Número de la paginación que se quiere obtener (inicia desde 0)
+          required: true
+          type: number
+      tags:
+        - Catalogo
+      responses:
+        200:
+          description: Arreglo con las versiones
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Auto'
+        default:
+          description: false = no existe la version/auto en el garage
+  /catalogo/getagencias:
+    post:
+      summary: Sirve para obtener el listado de estados de las agencias y las agencias por marca
+      description: |
+        En este endpoint al proporcionarse el id de la marca (brandId) se obtienen dos arreglos, uno es son los estados donde hay agencias y el otro las agencias, todo por la marca indicada
+      parameters:
+        - name: device
+          in: query
+          description: Id del dispositivo
+          required: true
+          type: number
+        - name: user
+          in: query
+          description: Id del usuario cuando esta logueado
+          required: false
+          type: number
+        - name: brandId
+          in: query
+          description: Id de la marca
+          required: true
+          type: string
+      tags:
+        - Catalogo
+      responses:
+        200:
+          description: Arreglo con estados y agencias por marca
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Agencias_Estados'
+        default:
+          description: false = Problemas con la base de datos
+  /catalogo/clicagencia:
+    post:
+      summary: Sirve para indicar a que agencia se le dio clic
+      description: |
+        Con este endpoint se hace el trackeo de a que agencia se le dio clic (expandir) en el listado inicial, se debe proporcionar el device, user (opcional) y el id de la agencia
+      parameters:
+        - name: device
+          in: query
+          description: Id del dispositivo
+          required: true
+          type: number
+        - name: user
+          in: query
+          description: Id del usuario cuando esta logueado
+          required: false
+          type: number
+        - name: agencia
+          in: query
+          description: Id de la agencia
+          required: true
+          type: number
+      tags:
+        - Catalogo
+      responses:
+        200:
+          description: Ok del registro
+        default:
+          description: false = Problemas con la base de datos
+  /catalogo/viavrumm:
+    post:
+      summary: Sirve para canalizar un mensaje a las agencias
+      description: |
+        Con este endpoint se genera un mensaje hacia las agencias, para que estas puedan responder dudas de los usuario, esta funcionalidad es para usuarios registrados.
+        En el subject se debe enviar [Más información, Prueba de manejo, Financiamiento, Promociones, Opciones de compra, Otro] estas 6 opciones son las mismas que se presentarán en el primer elemento de la forma.
+        Para el selector denominado ¿Como quieres que te respondamos? las opciones son [1=>'vía Vrumm',2=>'Correo',3=>'Teléfono'] para los casos 2 y 3, se pedira Nombre y Correo/Telefono según corresponda.
+      parameters:
+        - name: device
+          in: query
+          description: Id del dispositivo
+          required: true
+          type: number
+        - name: user
+          in: query
+          description: Id del usuario cuando esta logueado
+          required: true
+          type: number
+        - name: agencia
+          in: query
+          description: Id de la agencia
+          required: true
+          type: number
+        - name: subject
+          in: query
+          description: Subject del mensaje, de acuerdo a las 6 opciones
+          required: true
+          type: string
+        - name: note
+          in: query
+          description: Descripción larga del mensaje o detalles del mismo
+          required: false
+          type: string
+        - name: contact_by
+          in: query
+          description: Forma en que el usuario quiere ser contactado (tres opciones)
+          required: true
+          type: number
+        - name: name
+          in: query
+          description: Nombre por el cual sera contactado (contact_by 2 y 3)
+          required: false
+          type: string
+        - name: mail_tel
+          in: query
+          description: Correo o Teléfono (según el caso) por el cual sera contactado (contact_by 2 y 3)
+          required: false
+          type: string
+        - name: ip
+          in: query
+          description: Ip del dispositivo
+          required: false
+          type: string
+        - name: geo
+          in: query
+          description: Geolocalizacion del dispositivo
+          required: false
+          type: string
+      tags:
+        - Catalogo
+      responses:
+        200:
+          description: Ok mensaje enviado
+        default:
+          description: false = Problemas con la base de datos
+  /consulta/getfilters:
+    post:
+      summary: Obtener arreglo de los filtros
+      description: |
+        Se obtiene el arreglo de todos los filtros que se utilizan en la interfaz de busqueda, en este arreglo se incluye, el botón y criterio que se debe tomar para filtrar los resultados
+      tags:
+        - Busqueda
+      responses:
+        200:
+          description: Arreglo con los filtros
+        default:
+          description: Problemas con la BD
+  /consulta/getresults:
+    post:
+      summary: Obtener arreglo todos los resultados para la busqueda
+      description: |
+        Se obtiene el arreglo de todos los posibles resultados, aquí se tiene las propiedades por las cuales se puede aplicar el filtro (que son dados en el endpoint getfilters)
+      tags:
+        - Busqueda
+      responses:
+        200:
+          description: Arreglo con los resultados
+        default:
+          description: Problemas con la BD
+  /consulta/gettop5:
+    post:
+      summary: Obtener listado de las categorias Top5
+      description: |
+        GetTop5 obtiene la lista de las categorias por las cuales se pueden ordenar los resultados en la busqueda, se debe proporcionar el uso_id (6-Particulares y 7-Utilitario)
+      parameters:
+        - name: uso
+          in: query
+          description: Id del uso del vehiculo
+          required: true
+          type: number
+      tags:
+        - Busqueda
+      responses:
+        200:
+          description: Arreglo con las clasificaciones
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/OrdenTop5'
+        default:
+          description: Problemas con la BD
+  /usuario/registro:
+    post:
+      summary: Registro del usuario
+      description: |
+        Este endpoint hace el registro de los usuarios
+      parameters:
+        - name: device
+          in: query
+          description: Id del dispositivo
+          required: true
+          type: number
+        - name: alias
+          in: query
+          description: Alias o Apodo
+          required: true
+          type: string
+        - name: email
+          in: query
+          description: Corre electronico
+          required: true
+          type: string
+          format: nombre@empresa.com
+        - name: clave
+          in: query
+          description: Contraseña proporcionada
+          required: true
+          type: string
+        - name: refered_by
+          in: query
+          description: Id del usuario que invito al del registro
+          required: true
+          type: number
+        - name: nombre
+          in: query
+          description: Nombre(s)
+          required: false
+          type: string
+        - name: paterno
+          in: query
+          description: Apellido paterno
+          required: false
+          type: string
+        - name: materno
+          in: query
+          description: Apellido materno
+          required: false
+          type: string
+        - name: genero
+          in: query
+          description: Genero M-> Mujer u H->Hombre
+          required: false
+          type: string
+          format: M o H
+        - name: fecha_nacimiento
+          in: query
+          description: Fecha de nacimiento en formato (dd/mm/aaaa)
+          required: false
+          type: string
+          format: date
+        - name: foto
+          in: query
+          description: Foto para el perfil
+          required: false
+          type: string
+          format: Texto en base64
+        - name: tags
+          in: query
+          description: Etiquetas por las cuales se buscara al usuario
+          required: false
+          type: string
+          format: Texto separado por comas
+        - name: geoloc
+          in: query
+          description: Geolocalizacion del dispositivo
+          required: false
+          type: string
+      tags:
+        - Usuario
+      responses:
+        200:
+          description: usr_id
+        default:
+          description: Unexpected error
+  /usuario/buscarqtinv:
+    post:
+      summary: Buscar quien te invito (refered_by)
+      description: |
+        Bucarqtinv endpoint obtiene un arreglo con las posibles coincidencias de los usuarios, la búsqueda se hace por alias, email y tags
+      parameters:
+        - name: abuscar
+          in: query
+          description: Alias, email o tag que se desea buscar
+          required: true
+          type: string
+      tags:
+        - Usuario
+      responses:
+        200:
+          description: Arreglo con los posibles referidos
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Refered_Bys'
+        default:
+          description: Unexpected error
+  /usuario/validacorreo:
+    post:
+      summary: Validación del correo en el registro
+      description: |
+        ValidaCorreo sirve para validar el correo durante el proceso de registro, este endpoint nos indicará si un correo existe, es válido (en cuanto a sintaxis), al final regresará un mensaje de OK cuando el mismo se pueda utilizar en caso contrario se deberá usar otro y pasar de nuevo por esta validación
+      parameters:
+        - name: email
+          in: query
+          description: Correo que se quiere validar
+          required: true
+          type: string
+      tags:
+        - Usuario
+      responses:
+        200:
+          description: OK-Correo Valido
+        default:
+          description: Existe Email
+  /usuario/validanickname:
+    post:
+      summary: Validación para el Alias/Nickname
+      description: |
+        Este endpoint nos sirve para garantizar que el alias/nickname sea único en el sistema, ya que por cuestiones de acceso también se utiliza para el login
+      parameters:
+        - name: nickname
+          in: query
+          description: Alias que se quiere validar
+          required: true
+          type: string
+      tags:
+        - Usuario
+      responses:
+        200:
+          description: OK-Alias Valido
+        default:
+          description: Existe Alias/Nickname
+  /usuario/validacodigo:
+    post:
+      summary: Validación para determinar si el correo es verdadero
+      description: |
+        A partir de un hash-md5 recibido (code) se valida en la base de datos si el correo es verdadero
+      parameters:
+        - name: code
+          in: query
+          description: Hash-md5 que se manda por correo a la cuenta que se quiere validar
+          required: true
+          type: string
+      tags:
+        - Usuario
+      responses:
+        200:
+          description: OK-Correo verdadero
+        default:
+          description: No existe codigio de validacion
+  /usuario/login:
+    post:
+      summary: Login o acceso a la cuenta
+      description: |
+        Login proporciona un acceso a al cuenta del usuario, permite revisar en primera instancia cuenta, garage, comparador y mensajes
+      parameters:
+        - name: device
+          in: query
+          description: Id del dispositivo desde donde se hace el acceso
+          required: true
+          type: number
+        - name: email
+          in: query
+          description: Correo con el cual se registro
+          required: true
+          type: string
+        - name: passw
+          in: query
+          description: Contraseña que puso el usuario
+          required: true
+          type: string
+      tags:
+        - Usuario
+      responses:
+        200:
+          description: Arreglo con el id del usuario rs[idUsr]
+        default:
+          description: Email/Contraseña inválidos, corregir
+  /usuario/info:
+    post:
+      summary: Información del usuario
+      description: |
+        Info obtiene la información del usuario, esto es para la vista del Perfil o Cuenta
+      parameters:
+        - name: idUsr
+          in: query
+          description: Id del usuario despúes de Login o Acceso
+          required: true
+          type: number
+      tags:
+        - Usuario
+      responses:
+        200:
+          description: An array of usuario
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Usuario'
+        default:
+          description: Email/Contraseña inválidos, corregir
+  /usuario/actualizar:
+    post:
+      summary: Actualiza perfil
+      description: |
+        Se actualizan datos del perfil, los que no se hayan llenado en el registro o bien corregir existentes
+      parameters:
+        - name: device
+          in: query
+          description: Id del dispositivo
+          required: true
+          type: number
+        - name: user
+          in: query
+          description: Id del usuario
+          required: true
+          type: number
+        - name: nombre
+          in: query
+          description: Nombre(s)
+          required: false
+          type: string
+        - name: paterno
+          in: query
+          description: Apellido paterno
+          required: false
+          type: string
+        - name: materno
+          in: query
+          description: Apellido materno
+          required: false
+          type: string
+        - name: genero
+          in: query
+          description: Genero M-> Mujer u H->Hombre
+          required: false
+          type: string
+          format: M o H
+        - name: fecha_nacimiento
+          in: query
+          description: Fecha de nacimiento en formato (dd/mm/aaaa)
+          required: false
+          type: string
+          format: date
+        - name: foto
+          in: query
+          description: Foto para el perfil
+          required: false
+          type: string
+          format: Texto en base64
+        - name: tags
+          in: query
+          description: Etiquetas por las cuales se buscara al usuario
+          required: false
+          type: string
+          format: Texto separado por comas
+        - name: geoloc
+          in: query
+          description: Geolocalizacion del dispositivo
+          required: false
+          type: string
+      tags:
+        - Usuario
+      responses:
+        200:
+          description: Perfil Actualizado
+        default:
+          description: Problemas con la BD [sqlerr]
+  /usuario/cambiapsw:
+    post:
+      summary: Cambia la clave/contraseña actual
+      description: |
+        Este endpoint se puede cambiar la clave actual por una nueva, se valida que el user exista y la clave-actual sea la correcta
+      parameters:
+        - name: device
+          in: query
+          description: Id del dispositivo
+          required: true
+          type: number
+        - name: user
+          in: query
+          description: Id del usuario
+          required: true
+          type: number
+        - name: geoloc
+          in: query
+          description: Geolocalizacion del dispositivo
+          required: false
+          type: string
+        - name: actual
+          in: query
+          description: Clave actual
+          required: true
+          type: string
+        - name: nueva
+          in: query
+          description: Clave nueva
+          required: true
+          type: string
+      tags:
+        - Usuario
+      responses:
+        200:
+          description: Clave Actualizada
+        default:
+          description: Usuario Id no existe/ Clave actual no coincide , revisar
+  /usuario/getpasswd:
+    post:
+      summary: Solicitar cambiar contraseña
+      description: |
+        Este endpoint se hace una solicitud para cambiar la contraseña, se enviará un correo con una liga para realizar el proceso de actualizacion
+      parameters:
+        - name: device
+          in: query
+          description: Id del dispositivo
+          required: true
+          type: number
+        - name: mail
+          in: query
+          description: Correo del usuario
+          required: true
+          type: string
+        - name: geoloc
+          in: query
+          description: Geolocalizacion del dispositivo
+          required: false
+          type: string
+      tags:
+        - Usuario
+      responses:
+        200:
+          description: Se ha enviado una liga al correo
+        default:
+          description: No se encuentra registrado el correo, revisar
+  /usuario/enviacodigo:
+    post:
+      summary: Envia el codigo para validar correo
+      description: |
+        Endpoint para la interfaz de datos de la cuenta, en el caso de que el correo no este validado (mca_okmail=0) se mostrara un boton para volver a enviar el codigo de validacion
+      parameters:
+        - name: device
+          in: query
+          description: Id del dispositivo
+          required: true
+          type: number
+        - name: user
+          in: query
+          description: Id del usuario
+          required: true
+          type: number
+        - name: geoloc
+          in: query
+          description: Geolocalizacion del dispositivo
+          required: false
+          type: string
+        - name: mail
+          in: query
+          description: Correo a donde se mandará el codigo, si es diferente al existente se guarda
+          required: true
+          type: string
+      tags:
+        - Usuario
+      responses:
+        200:
+          description: Codigo enviado, favor de revisar su correo
+        default:
+          description: Usuario Id no existe, revisar / Problemas para enviar codigo, entente mas tarde
+  /usuario/limpiagarage:
+    post:
+      summary: Inicializacion del Garage
+      description: |
+        Endpoint sirve para eliminar las versiones del garage del usuario
+      parameters:
+        - name: device
+          in: query
+          description: Id del dispositivo
+          required: true
+          type: number
+        - name: user
+          in: query
+          description: Id del usuario
+          required: true
+          type: number
+        - name: geoloc
+          in: query
+          description: Geolocalizacion del dispositivo
+          required: false
+          type: string
+      tags:
+        - Usuario
+      responses:
+        200:
+          description: Se ha limpiado el Garage
+        default:
+          description: Problemas en la BD
+  /usuario/limpiacomparador:
+    post:
+      summary: Inicializacion del Comparador
+      description: |
+        Endpoint sirve para eliminar las versiones del comparador del usuario
+      parameters:
+        - name: device
+          in: query
+          description: Id del dispositivo
+          required: true
+          type: number
+        - name: user
+          in: query
+          description: Id del usuario
+          required: true
+          type: number
+        - name: geoloc
+          in: query
+          description: Geolocalizacion del dispositivo
+          required: false
+          type: string
+      tags:
+        - Usuario
+      responses:
+        200:
+          description: Se ha limpiado el Comparador
+        default:
+          description: Problemas en la BD
+  /garage/agregar:
+    post:
+      summary: Agregar una version al garage
+      description: |
+        AgregaGarage agrega una versión proporcionada al garage del usuario indicado, marcandolo con alguna de las tres opciones o etiquetas: soonday, someday y dream
+      parameters:
+        - name: device
+          in: query
+          description: Id del dispositivo
+          required: true
+          type: number
+        - name: geoloc
+          in: query
+          description: Geolocalización del dispositivo
+          required: false
+          type: string
+        - name: ip
+          in: query
+          description: Ip del dispositivo
+          required: false
+          type: string
+        - name: user
+          in: query
+          description: Id del usuario
+          required: true
+          type: number
+        - name: version
+          in: query
+          description: Id de la version agregar
+          required: true
+          type: number
+        - name: tipo
+          in: query
+          description: Tipo, clasificación o etiqueta de la version en el garage (soonday,someday o dream)
+          required: true
+          type: string
+      tags:
+        - Garage
+      responses:
+        200:
+          description: Auto agregado
+        default:
+          description: Problemas con la BD
+  /garage/cambiartipo:
+    post:
+      summary: Cambia el tipo de una version
+      description: |
+        Este endpoint permite cambiar la etiqueta o clasificacion de la versión dentro del garage
+      parameters:
+        - name: device
+          in: query
+          description: Id del dispositivo
+          required: true
+          type: number
+        - name: geoloc
+          in: query
+          description: Geolocalización del dispositivo
+          required: false
+          type: string
+        - name: ip
+          in: query
+          description: Ip del dispositivo
+          required: false
+          type: string
+        - name: user
+          in: query
+          description: Id del usuario
+          required: true
+          type: number
+        - name: garage
+          in: query
+          description: Id del auto en el garage
+          required: true
+          type: number
+        - name: tipo
+          in: query
+          description: Tipo, clasificación o etiqueta de la version en el garage (soonday,someday o dream)
+          required: true
+          type: string
+      tags:
+        - Garage
+      responses:
+        200:
+          description: Se cambio el tipo
+        default:
+          description: Problemas con la BD
+  /garage/quitar:
+    post:
+      summary: Quita auto del garage
+      description: |
+        Cuando un usuario ya no quiere tener un auto en su garage, este endpoint permite quitarlo
+        | Se agrega un parametro para limpiar el garage
+      parameters:
+        - name: device
+          in: query
+          description: Id del dispositivo
+          required: true
+          type: number
+        - name: geoloc
+          in: query
+          description: Geolocalización del dispositivo
+          required: false
+          type: string
+        - name: ip
+          in: query
+          description: Ip del dispositivo
+          required: false
+          type: string
+        - name: user
+          in: query
+          description: Id del usuario
+          required: true
+          type: number
+        - name: garage
+          in: query
+          description: Id del auto en el garage
+          required: true
+          type: number
+        - name: nota
+          in: query
+          description: Texto escrito por el usuario para indicar por que esta quitando el auto del garage
+          required: false
+          type: string
+        - name: limpiar
+          in: query
+          description: Boleano para indicar que se limpie el Garage
+          required: false
+          type: boolean
+      tags:
+        - Garage
+      responses:
+        200:
+          description: Se quito el auto del garage
+        default:
+          description: Problemas con la BD
+  /garage/listar:
+    post:
+      summary: Garage de un usuario
+      description: |
+        El endpoint listar, obtiene la lista del garage de un usuario, el parámetro de filtro permite filtrar por: categoria (soonday, someday, dream) o id de marca (brand_id)
+      parameters:
+        - name: device
+          in: query
+          description: Id del dispositivo
+          required: true
+          type: number
+        - name: idUsr
+          in: query
+          description: Id del usuario
+          required: true
+          type: number
+        - name: filtro
+          in: query
+          description: Filtro aplicar en garage
+          required: false
+          type: number
+      tags:
+        - Garage
+      responses:
+        200:
+          description: An array of garage
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Garage'
+        default:
+          description: Usuario sin autos en garage
+  /garage/estaversion:
+    post:
+      summary: Existe auto/version en garage
+      description: |
+        Este endpoint determina si un auto/version esta en el garage de un usuario
+      parameters:
+        - name: idUsr
+          in: query
+          description: Id del usuario
+          required: true
+          type: number
+        - name: version
+          in: query
+          description: Id de la version/auto
+          required: true
+          type: number
+      tags:
+        - Garage
+      responses:
+        200:
+          description: Si esta se presenta la etiqueta en caso contrario null
+        default:
+          description: false = no existe la version/auto en el garage
+  /garage/getmarcas:
+    post:
+      summary: Obtener marcas de autos garage
+      description: |
+        GetMarcas obtiene el listado de las marcas de vehiculos en el garage
+      parameters:
+        - name: device
+          in: query
+          description: Id del dispositivo
+          required: true
+          type: number
+        - name: geoloc
+          in: query
+          description: Geolocalización del dispositivo
+          required: false
+          type: string
+        - name: ip
+          in: query
+          description: Ip del dispositivo
+          required: false
+          type: string
+        - name: user
+          in: query
+          description: Id del usuario
+          required: true
+          type: number
+      tags:
+        - Garage
+      responses:
+        200:
+          description: Arrelo de marcas {id,nombre}
+        default:
+          description: Problemas con la BD
+  /comparador/agregar:
+    post:
+      summary: Agregar una version al comparador
+      description: |
+        Este endpoint agrega una versión proporcionada al comparador del usuario indicado
+      parameters:
+        - name: device
+          in: query
+          description: Id del dispositivo
+          required: true
+          type: number
+        - name: geoloc
+          in: query
+          description: Geolocalización del dispositivo
+          required: false
+          type: string
+        - name: ip
+          in: query
+          description: Ip del dispositivo
+          required: false
+          type: string
+        - name: user
+          in: query
+          description: Id del usuario
+          required: true
+          type: number
+        - name: version
+          in: query
+          description: Id de la version agregar
+          required: true
+          type: number
+      tags:
+        - Comparador
+      responses:
+        200:
+          description: Auto agregado
+        default:
+          description: Problemas con la BD
+  /comparador/quitar:
+    post:
+      summary: Quita auto del comparador
+      description: |
+        Cuando un usuario ya no quiere tener un auto en su garage, este endpoint permite quitarlo, se le pregunta al usuario que de un comentario de por que lo esta quitando
+        | Se agrega parametro para limpiar Comparador
+      parameters:
+        - name: device
+          in: query
+          description: Id del dispositivo
+          required: true
+          type: number
+        - name: geoloc
+          in: query
+          description: Geolocalización del dispositivo
+          required: false
+          type: string
+        - name: ip
+          in: query
+          description: Ip del dispositivo
+          required: false
+          type: string
+        - name: user
+          in: query
+          description: Id del usuario
+          required: true
+          type: number
+        - name: version
+          in: query
+          description: Id's de los autos (versiones) que se deben de borrar
+          required: true
+          type: string
+        - name: nota
+          in: query
+          description: Texto escrito por el usuario para indicar por que esta quitando el auto del comparador
+          required: false
+          type: string
+        - name: limpiar
+          in: query
+          description: Boleano que indica que se debe limpiar el comparador
+          required: false
+          type: boolean
+      tags:
+        - Comparador
+      responses:
+        200:
+          description: Se quito el auto del comparador
+        default:
+          description: Problemas con la BD
+  /comparador/listar:
+    post:
+      summary: Comparador de un usuario
+      description: |
+        El endpoint listar, obtiene la lista del comparador de un usuario, el parámetro de ordenar_por permite ordenar los resultados por: marca, año, categorias del top5 u ingreso en el comparador (default), de igual forma se puede indicar si es Ascendente (default) o Descendencte el ordenamiento, la lista de opciones debe quedar de la siguiente forma: [0=>Ingreso en el comparador,1=>Año,2=>Marca, 3=>El mas potente, 4=>El mas Económico, 5=>Más ecológico, 6=>Más confort, 7=>Más lujoso, 8=>Mas gatgets]
+      parameters:
+        - name: device
+          in: query
+          description: Id del dispositivo
+          required: true
+          type: number
+        - name: idUsr
+          in: query
+          description: Id del usuario
+          required: true
+          type: number
+        - name: ordenar_por
+          in: query
+          description: Orden de los resultados
+          required: false
+          type: number
+        - name: descendente
+          in: query
+          description: Indica si los resultados estaran de forma descendente (por default es ascendente), valores 1- Orden descendente 0-Orden ascendente
+          required: false
+          type: number
+      tags:
+        - Comparador
+      responses:
+        200:
+          description: An array of Auto
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Auto'
+        default:
+          description: Usuario sin autos en comparador
+  /comparador/estaversion:
+    post:
+      summary: Existe auto/version en comparador
+      description: |
+        Este endpoint determina si un auto/version esta en el comparador de un usuario
+      parameters:
+        - name: idUsr
+          in: query
+          description: Id del usuario
+          required: true
+          type: number
+        - name: version
+          in: query
+          description: Id de la version/auto
+          required: true
+          type: number
+      tags:
+        - Comparador
+      responses:
+        200:
+          description: Id del comparador
+        default:
+          description: false = no existe la version/auto en el comparador
+definitions:
+  EndPoint:
+    type: object
+    properties:
+      id:
+        type: number
+        description: Identificador del registro
+      nombre:
+        type: string
+        description: Nombre del EndPoint
+      updated_at:
+        type: string
+        format: date-time
+  Slider:
+    type: object
+    properties:
+      orden:
+        type: number
+        description: Orden de los sliders
+      id:
+        type: number
+        description: Identificador del registro
+      titulo:
+        type: string
+        description: Titulo del slider
+      pic_url:
+        type: string
+        description: URL de la imagen que se mostrara
+      activo:
+        type: number
+        description: Marca que indica si el slider esta activo o no
+      visto:
+        type: number
+        description: Marca que indica si el slider ya fue visto por el dispositivo
+      updated_at:
+        type: string
+        format: date-time
+        description: Fecha de actualizacion
+  Marca:
+    type: object
+    properties:
+      id:
+        type: number
+        description: Identificador de la Marca
+      name:
+        type: string
+        description: Nombre de la marca
+      pic_url:
+        type: string
+        description: Url del logotipo
+      updated_at:
+        type: string
+        format: date-time
+        description: Fecha de actualizacion
+      num_modelos:
+        type: number
+        description: Número de modelos en la marca
+  Modelo:
+    type: object
+    properties:
+      brand_id:
+        type: number
+        description: Identificador de la Marca
+      model_id:
+        type: number
+        description: Identificador del Modelo
+      year:
+        type: number
+        description: Año del modelo
+      uso:
+        type: string
+        description: Uso del vehiculo (Particular o Utilitario)
+      tipo_catalogo:
+        type: string
+        description: Tipo de catalogo o vehiculo
+      carroceria:
+        type: string
+        description: Tipo de carroceria
+      name:
+        type: string
+        description: Nombre del modelo
+      desde:
+        type: number
+        description: Importe desde
+      hasta:
+        type: number
+        description: Importe hasta
+      pic_url:
+        type: string
+        description: Imágen del modelo
+      updated_at:
+        type: string
+        format: date-time
+        description: Fecha de actualizacion
+      num_versiones:
+        type: number
+        description: Número de versiones en el modelo
+  Auto:
+    type: object
+    properties:
+      brand_id:
+        type: number
+        description: Identificador de la marca
+      model_id:
+        type: number
+        description: Identificador del modelo
+      id:
+        type: number
+        description: Identificador de la version/auto
+      name:
+        type: string
+        description: Nombre de la version/auto
+      year:
+        type: number
+        description: Año del modelo
+      starting_price:
+        type: number
+        description: Precio
+      pic_url:
+        type: string
+        description: Foto de la version
+      pic_web:
+        type: string
+        description: Foto de la version para version web
+      esta_garage:
+        type: string
+        description: Marca para indicar si esta en garage- soonday, someday, dream o null (no esta)
+      esta_comparador:
+        type: number
+        description: Marca para indicar si 1-Esta en comparador o 0-No esta
+      updated_at:
+        type: string
+        format: date-time
+        description: Fecha de actualizacion
+      ficha_tecnica:
+        type: array
+        items:
+          $ref: '#/definitions/Ficha_Tecnica'
+        description: Ficha tecnica
+  Ficha_Tecnica:
+    type: object
+    properties:
+      ficha_tecnica:
+        type: string
+        description: Grupo de la ficha tecnica
+      valor:
+        type: string
+        description: Etiqueta que corresponde al item de la ficha tecnica
+      dato:
+        type: string
+        description: Contenido del item de la ficha tecnica
+      updated_at:
+        type: string
+        format: date-time
+        description: Fecha de actualizacion
+  Estado:
+    type: object
+    properties:
+      state:
+        type: string
+        description: Nombre del estado
+  Agencia:
+    type: object
+    properties:
+      id:
+        type: number
+        description: Identificador del registro
+      name:
+        type: string
+        description: Nombre de la agencias
+      address:
+        type: string
+        description: Dirección
+      state:
+        type: string
+        description: Estado (nombre del Estado)
+      phone:
+        type: string
+        description: Teléfono
+      website:
+        type: string
+        description: Página de la agencia
+      is_vrumm:
+        type: number
+        description: Indica si 1-Es una agencia Vrumm o 0-No lo es
+  Agencias_Estados:
+    type: object
+    properties:
+      estados:
+        type: array
+        items:
+         $ref: '#/definitions/Estado'
+        description: Lista de estados donde estan las agencias
+      agencias:
+        type: array
+        items:
+         $ref: '#/definitions/Agencia'
+        description: Lista de las agencias
+  OrdenTop5:
+    type: object
+    properties:
+      id:
+        type: number
+        description: Id del registro
+      uso:
+        type: number
+        description: Uso del vehiculo 6=Particular, 7=Utilitario y Null=Ambos
+      top_label:
+        type: string
+        description: Etiqueta que debe ponerse en el frontend
+      ordenar_por:
+        type: string
+        description: Codigo SQL que indica la forma de ordenar
+      updated_at:
+        type: string
+        format: date-time
+        description: Fecha de actualizacion
+  Refered_Bys:
+    type: object
+    properties:
+      id:
+        type: number
+        description: Identificador del usuario que invita.
+      full_name:
+        type: string
+        description: Nombre completo
+      alias:
+        type: string
+        description: Alias o apodo.
+      email:
+        type: string
+        description: Correo electronico.
+      tags:
+        type: string
+        description: Etiquetas por las cuales se busca
+  Usuario:
+    type: object
+    properties:
+      id:
+        type: number
+        description: Identificador del usuario
+      alias:
+        type: string
+        description: Alias o apodo
+      full_name:
+        type: string
+        description: Nombre completo
+      email:
+        type: string
+        description: Correo electronico (usado para acceso)
+      foto_perfil:
+        type: string
+        description: Foto del perfil, en texto base64
+      genero:
+        type: string
+        description: Genero, M->Mujer o H->Hombre
+      edad:
+        type: number
+        description: Edad
+      tags:
+        type: string
+        description: Tags usadas para la busqueda
+      invitado_por:
+        type: string
+        description: Nombre del usuario que lo invito a Vrumm
+      total_garage:
+        type: number
+        description: Numero de versiones/autos en garage
+      total_comparador:
+        type: number
+        description: Numero de versiones/autos en comparador
+      mca_okmail:
+        type: number
+        description: Indica si el mail se valido 1 Valido 0 No se ha validado
+      created_at:
+        type: string
+        description: Fecha de ingreso a Vrumm
+  Garage:
+    type: object
+    properties:
+      garage_id:
+        type: number
+        description: Identificador del garage
+      brand_id:
+        type: number
+        description: Identificador de la marca
+      brand_name:
+        type: string
+        description: Nombre de la marca
+      model_id:
+        type: number
+        description: Identificador del modelo
+      model_name:
+        type: string
+        description: Nombre del modelo
+      year:
+        type: number
+        description: Año del modelo
+      version_id:
+        type: number
+        description: Identificador de la version
+      version_name:
+        type: string
+        description: Nombre de la version
+      starting_price:
+        type: number
+        description: Precio
+      pic_url:
+        type: string
+        description: Foto de la version
+      updated_at:
+        type: string
+        format: date-time
+        description: Fecha de actualizacion
+      created_at:
+        type: string
+        format: date-time
+        description: Fecha de creacion
