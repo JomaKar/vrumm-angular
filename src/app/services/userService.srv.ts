@@ -3,22 +3,26 @@ import { Subject } from 'rxjs/Subject';
 
 @Injectable()
 export class UserService{
-	userInfoStored = new EventEmitter();
-	userID = new EventEmitter();
-	loggedUserVal = new Subject<boolean>();
+	actualUsrInfo: Object = {};
+	loggedUsrId: string = '';
+	actualUsrAlias: string = '';
+	loggedUsrInfo: Object = {};
+	actualUserId: string = '';
+	isLoggedUser: boolean = false;
 
-	loggedUserVal$ = this.loggedUserVal.asObservable();
-
-	passingInfo(userInfo: Object){
-		console.log(userInfo);
-		this.userInfoStored.emit(userInfo);
+	passingLoggedUserInfo(userInfo: Object){
+		this.loggedUsrInfo = userInfo;
 	}
 
-	passingID(id){
-		this.userID.emit(id);
+	passingActualUserInfo(info: Object){
+		this.actualUsrInfo = info;
+	}
+
+	setLoggedUserID(id){
+		this.loggedUsrId = id;
 	}
 
 	loggedUser(val: boolean){
-		this.loggedUserVal.next(val);
+		this.isLoggedUser = val;
 	}
 }

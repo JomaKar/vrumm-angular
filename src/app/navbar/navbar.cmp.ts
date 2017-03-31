@@ -12,19 +12,33 @@ import { UserService } from '../services/userService.srv';
 
 export class VrummNavbar implements AfterViewInit, OnInit{
 	activeUsr: boolean = false;
-	activeUser: Object = {};
+	activeUserInfo: Object = {};
 	navbarDown: boolean = false;
+	noInLoggedUsrProfile: boolean = false;
 	smMenuDown: boolean = false;
 	@ViewChild('configLink1') configLink1: ElementRef;
 	@ViewChild('dropdownItem') dropdownItem: ElementRef;
 	@ViewChild('configLinkDisable') configLinkDisable: ElementRef;
 	@ViewChild('smDropDownMenu') smDropDownMenu: ElementRef;
+	@ViewChild('fotoNavbarLink') fotoNavbarLink: ElementRef;
 
-	constructor(private renderer: Renderer, private wwSrv: windowWidthService, private usrS: UserService){}
+
+	constructor(private renderer: Renderer, private wwSrv: windowWidthService, private usrS: UserService){
+	}
 
 	ngOnInit(){
-		this.usrS.loggedUserVal$.subscribe(val => {console.log(val)});
-		this.usrS.userID.subscribe(id => {console.log(id)});
+		this.activeUserInfo = (this.usrS.loggedUsrInfo !== {}) ? this.usrS.loggedUsrInfo : {};
+		if(this.usrS.actualUsrAlias.length > 0){
+
+			this.noInLoggedUsrProfile = (this.activeUserInfo['alias'] == this.usrS.actualUsrAlias) ? true : false;
+			if(this.noInLoggedUsrProfile){
+				console.log(this.fotoNavbarLink);
+				// this.renderer.setElementStyle(this.fotoNavbar.nativeElement, 'background-image', `url(${this.activeUserInfo['foto_perfil']})`);
+			}
+		}
+		console.log(this.activeUserInfo['foto_perfil']);
+		// console.log(this.noInLoggedUsrProfile);
+		this.activeUsr = this.usrS.isLoggedUser;
 	}
 
 

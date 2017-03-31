@@ -35,15 +35,16 @@ export class VrummLogin{
 		this.httpS.login(loginForm.value).subscribe(res => {
 			if(res.ok){
 				let result = res.json();
+				console.log(result);
 				if(result.estado === 1){
 					let id = result.mensaje.rs;
-					this.usrSer.passingID(id);
+					this.usrSer.setLoggedUserID(id);
 					this.httpS.userGetInfo(id).subscribe(res => {
 						if(res.ok){
 							let result = res.json();
 							if(result.estado === 1){
 								let userAlias = result.mensaje.rs[0].alias;
-								this.usrSer.passingInfo(result.mensaje.rs[0]);
+								this.usrSer.passingLoggedUserInfo(result.mensaje.rs[0]);
 								this.usrSer.loggedUser(true);
 								this.route.navigate(['app/perfil', userAlias]);
 							}else{

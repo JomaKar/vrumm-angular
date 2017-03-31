@@ -14,10 +14,10 @@
       <div id="navbar" class="collapse navbar-collapse" #smDropDownMenu>
             <ul class="nav navbar-nav navMenuList">
                 <li class="profileNavLinkCont" *ngIf="activeUsr" >
-                    <a [routerLink]="['/app/perfil', activeUser.alias]" href="" class="noBrd grayColor profileNavLink">
+                    <a [routerLink]="['/app/perfil', activeUserInfo.alias]" class="noBrd grayColor profileNavLink" #fotoNavbarLink>
                         <span>@</span>
-                        <span class="aliasNavSpan"> {{activeUser.alias}} </span>
-                        <div class="backImg minProfileImg"></div>
+                        <span class="aliasNavSpan"> {{activeUserInfo.alias}} </span>
+                        <div class="backImg minProfileImg" *ngIf="noInLoggedUsrProfile" [ngStyle]="{'background-image': 'url(data:image/png;base64,' + activeUserInfo.foto_perfil + ')'}"></div>
                     </a>
 
                 </li>
@@ -37,7 +37,7 @@
                     <button class="shareVrumm" (click)="shareModal()" >Comparte Vrumm</button>
                 </li>
                 <li class="btmBrd hidden-sm hidden-md hidden-lg hidden-xl" #configLink1>
-                    <a [routerLink]="['/app/perfil', activeUser.alias, '/edit']">Configuración</a>
+                    <a [routerLink]="['/app/perfil', activeUserInfo.alias, '/edit']">Configuración</a>
                 </li>
                 <li *ngIf="activeUsr" class="hidden-sm hidden-md hidden-lg hidden-xl">
                     <a data-dev="/vrumm/build/web/" data-prod="/web/" href="" class="aquaColor closeSession noChangeHref">Cerrar Sesión</a>
@@ -61,7 +61,7 @@
                             <button (click)="shareModal()" class="shareVrumm">Comparte Vrumm</button>
                         </li>
                         <li class="btmBrd" #configLinkDisable>
-                            <a [routerLink]="['/app/perfil', activeUser.alias, '/edit']">Configuración</a>
+                            <a [routerLink]="['/app/perfil', activeUserInfo.alias, '/edit']">Configuración</a>
                         </li>
                         <li *ngIf="activeUsr">
                             <a data-dev="/vrumm/build/web/" data-prod="/web/" class="aquaColor closeSession noChangeHref">Cerrar Sesión</a>
